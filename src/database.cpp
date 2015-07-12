@@ -53,8 +53,21 @@ namespace {
             dest = boost::posix_time::time_from_string(text);
         }
 
+        static std::locale& time_locale()
+        {
+            static boost::posix_time::time_facet* TimeFacet = new boost::posix_time::time_facet();
+            static std::locale TimeLocale( std::locale(), TimeFacet );
+            TimeFacet->format("%Y-%m-%d %H:%M:%s");
+            return TimeLocale;
+        }
+
         virtual void to_row(const ptime &src, row &dest) const override {
-            const timestamp text(boost::posix_time::to_simple_string(src));
+
+            std::stringstream string_timestamp;
+            string_timestamp.imbue( time_locale() );
+            string_timestamp << src;
+
+            const timestamp text(string_timestamp.str());
             direct_mapper<timestamp>::to_row(text, dest);
         }
 

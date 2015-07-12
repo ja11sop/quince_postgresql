@@ -106,7 +106,16 @@ namespace {
                     _values[i] = static_cast<const char *>(c.data());
                     _lengths[i] = boost::numeric_cast<int>(c.size());
                 }
-                _formats[i] = 1;  // always binary
+
+                if( _types[i] == TIMESTAMPOID )
+                {
+                    _formats[i] = 0;
+                    _lengths[i] += 1;
+                }
+                else
+                {
+                    _formats[i] = 1;  // binary
+                }
             }
         }
 
@@ -186,7 +195,7 @@ namespace {
             }
             return result;
         }
-    
+
         bool
         bad_no_data() const {
             return PQresultStatus(_pg_result) != PGRES_COMMAND_OK;
